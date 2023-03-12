@@ -200,24 +200,31 @@ define function main () => ()
     force-out();
     let path = read-line(*standard-input*);
     //C:/Users/Gal Gabay/AppData/Local/VirtualStore/Program Files (x86)/Open Dylan/bin/POPL/tar0
-    let inputA = concatenate(path, "/inputA.vm");
-    let inputB = concatenate(path, "/inputB.vm");
+    
     let dirs = split(path, '/');
     let workDir = last(dirs);
     let output = concatenate(path, concatenate("/", workDir ,".asm"));
+    let files = directory-contents(path);
     with-open-file(stream = output, direction: #"output")
-      let a = as(<file-locator>, inputA);
-      let b = as(<file-locator>, inputB);
-      format(stream, "inputA\n");
-      let (totalBuyA,totalSellA) = analyze-file(a, stream);
-      format(stream, "inputB\n");
-      let (totalBuyB,totalSellB) = analyze-file(b, stream);
-      let totalBuy = float-to-string(totalBuyA + totalBuyB);
-      let totalSell = float-to-string(totalSellA + totalSellB);
-      format-out(concatenate("TOTAL BUY: ",totalBuy,"\n"));
-      format-out(concatenate("TOTAL SELL: ",totalSell,"\n"));
-      format(stream, concatenate("TOTAL BUY: ",totalBuy,"\n"));
-      format(stream, concatenate("TOTAL SELL: ",totalSell,"\n"));
+      let totalBuy = 0; 
+      let totalSell = 0; 
+
+      for (file in files)
+        if (ends-with?(as (<string>,file),".vm"))
+          let fileName = first(split(last(split(as (<string>,file), "\\")),"."));
+          let input = concatenate(path, "/",fileName,".vm");
+          let a = as(<file-locator>, input);
+          format(stream, concatenate(fileName,"\n"));
+          let (fileBuy,fileSell) = analyze-file(a, stream);
+          totalBuy := totalBuy + fileBuy;
+          totalSell := totalSell + fileSell;
+        end if;
+      end;
+
+      format-out(concatenate("TOTAL BUY: ",float-to-string(totalBuy),"\n"));
+      format-out(concatenate("TOTAL SELL: ",float-to-string(totalSell),"\n"));
+      format(stream, concatenate("TOTAL BUY: ",float-to-string(totalBuy),"\n"));
+      format(stream, concatenate("TOTAL SELL: ",float-to-string(totalSell),"\n"));
     end;
   
 end function main;
