@@ -1,0 +1,4 @@
+
+MPS ASSERTION FAILURE: band != RankWEAK || rank == band
+.\trace.c
+1133
