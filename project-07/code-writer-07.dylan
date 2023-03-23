@@ -5,15 +5,8 @@ Copyright:
 
 
 
-  define variable *segment-table* = make(<table>, size: 5);
-
-  *color-action-table*["local"] := "LCL"; 
-*color-action-table*["argument"] := "ARG";
-*color-action-table*["this"] := "THIS";
-*color-action-table*["that"] := "THAT";
-*color-action-table*["temp"] := "5";
-
-
+  
+  
 
 define class <code-writer-07> (<object>)
   slot eq-counter :: <integer>, init-value: 0;
@@ -44,13 +37,14 @@ end class;
   end function;
 
 
-  define function write-push-pop(writer :: <code-writer-07>, command :: <command-type>, segment :: <string>, index :: <integer)
-        let file-name = "sss";
+  define function write-push-pop(writer :: <code-writer-07>, command :: <command-type>, segment :: <string>, index :: <integer>)
+
+  let file-name = "ddd";
         select (command)
            #"PUSH" => 
-                select (segment by /=)
+                select (segment by \=)
                     "constant" => format(writer.out, replace-substrings(*push-constant*, "{value}", integer-to-string(index)));
-                    "local", "argument", "this", "that" => format(writer.out, replace-substrings(replace-substrings(*push-lcl-arg-this-that*, "{index}", integer-to-string(index)), "{segment}", segment-table[segment]));
+                    "local", "argument", "this", "that" => format(writer.out, replace-substrings(replace-substrings(*push-lcl-arg-this-that*, "{index}", integer-to-string(index)), "{segment}", *segment-table*[segment]));
                     "temp" => format(writer.out, replace-substrings(*push-temp*, "{index}", integer-to-string(index)));
                     "pointer" => 
                           select (index)
@@ -60,13 +54,13 @@ end class;
                     "static" => format(writer.out, replace-substrings(*push-static*, "{index}", concatenate(file-name, ".", integer-to-string(index))));
                 end select;
            #"POP" => 
-                select (segment by /=)
+                select (segment by \=)
                     "local", "argument", "this", "that" => 
                         let s = "";
-                        for (count from 0 below index)
-                            s = concatenate(s, "A=A+1\n  ");
+                        for (i from 0 to index)
+                            s := concatenate(s, "A=A+1\n  ");
                         end for;
-                        format(writer.out, replace-substrings(replace-substrings(*pop-lcl-arg-this-that*, "{index}", s), "{segment}", segment-table[segment]));
+                        format(writer.out, replace-substrings(replace-substrings(*pop-lcl-arg-this-that*, "{index}", s), "{segment}", *segment-table*[segment]));
                     "temp" => format(writer.out, replace-substrings(*pop-temp*, "{index}", integer-to-string(index)));
                     "pointer" => 
                           select (index)
@@ -78,3 +72,9 @@ end class;
         end select;
   end function;
 
+    /**
+     * Closes the output file.
+     */
+    define function close(writer :: <code-writer-07>)
+        close(writer.out);
+    end function;

@@ -5,7 +5,7 @@ Copyright:
 
 
 
-
+/*
 define function foo 
     (cmd :: <command-type>)
     select (cmd)
@@ -15,20 +15,28 @@ define function foo
     end;
 end;
 
+*/
 define function foo2
-    (cmd)
+    ()
+
     let writer = make(<code-writer-07>);
-    //write-push-pop(writer, #"POP", "temp", 5);
-    write-arithmetic(writer, cmd);
+    write-push-pop(writer, #"POP", "static", 5);
+    write-arithmetic(writer, "add");
 end;
 
 
 
+  define variable *segment-table* = make(<string-table>);
+  *segment-table*["local"] := "LCL"; 
+  *segment-table*["argument"] := "ARG";
+  *segment-table*["this"] := "THIS";
+  *segment-table*["that"] := "THAT";
+  *segment-table*["temp"] := "5";
 
 define function main
     (name :: <string>, arguments :: <vector>)
-    let cmd = "eq";
-    foo2(cmd);
+    foo2();
+
 
   exit-application(0);
 end function main;

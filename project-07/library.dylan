@@ -5,6 +5,7 @@ define library project-07
   use io;
   use system;
   use strings;
+  use collections;
 end library project-07;
 
 define module project-07
@@ -14,6 +15,6 @@ define module project-07
   use format;
   use file-system;
   use format-out;
+  use table-extensions, import: {<string-table>};
   use strings;
-  export code-writer-07;
 end module project-07;

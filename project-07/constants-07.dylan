@@ -39,6 +39,7 @@ define constant <command-type>
 
 
 
+
 /*
 define variable *sub* = """
   @SP               //   A = 0                           
