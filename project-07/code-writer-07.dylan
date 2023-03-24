@@ -4,9 +4,12 @@ Author:
 Copyright: 
 
 
-
-  
-  
+  define variable *segment-table* = make(<string-table>);
+  *segment-table*["local"] := "LCL"; 
+  *segment-table*["argument"] := "ARG";
+  *segment-table*["this"] := "THIS";
+  *segment-table*["that"] := "THAT";
+  *segment-table*["temp"] := "5";
 
 define class <code-writer-07> (<object>)
   slot eq-counter :: <integer>, init-value: 0;
