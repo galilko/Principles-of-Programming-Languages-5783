@@ -16,8 +16,14 @@ define class <code-writer-07> (<object>)
   slot gt-counter :: <integer>, init-value: 0;
   slot lt-counter :: <integer>, init-value: 0;
   //slot file-name :: <string>, init-value: "inputA.vm";
-  slot out :: <file-stream> = make(<file-stream>,locator: as(<file-locator>, "foo.text"), direction: #"output");
+  slot out :: <file-stream>;
 end class;
+
+
+
+  define function set-current-file-name(writer :: <code-writer-07>, file-name :: <string>);
+        out := make(<file-stream>,locator: as(<file-locator>, concatenate(file-name, ".asm")), direction: #"output");
+  end function;
 
   define function write-arithmetic(writer :: <code-writer-07>, command :: <string>)
         select (command by \=)
@@ -73,6 +79,11 @@ end class;
                     "static" => format(writer.out, replace-substrings(*pop-static*, "{index}", concatenate(file-name, ".", integer-to-string(index))));
                 end select;
         end select;
+  end function;
+
+
+ define function emit-comment(writer :: <code-writer-07>, command :: <string>, number-line :: <integer>)
+        format(writer.out, concatenate("// ", command, "  (line ", number-line, ")\n"));
   end function;
 
     /**
