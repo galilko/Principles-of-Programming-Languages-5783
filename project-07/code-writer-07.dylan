@@ -22,7 +22,7 @@ end class;
 
 
   define function set-current-file-name(writer :: <code-writer-07>, file-name :: <string>);
-        out := make(<file-stream>,locator: as(<file-locator>, concatenate(file-name, ".asm")), direction: #"output");
+        writer.out := make(<file-stream>,locator: as(<file-locator>, concatenate(file-name, ".asm")), direction: #"output");
   end function;
 
   define function write-arithmetic(writer :: <code-writer-07>, command :: <string>)
@@ -89,6 +89,6 @@ end class;
     /**
      * Closes the output file.
      */
-    define function close(writer :: <code-writer-07>)
+    define function close-file(writer :: <code-writer-07>)
         close(writer.out);
     end function;

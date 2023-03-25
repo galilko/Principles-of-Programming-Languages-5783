@@ -15,8 +15,8 @@ define function translate-vm-file
     (vm-file :: <file-stream>)
     let line-number = 0;
     let line = #f;
-    while ((line := read-line(s,on-end-of-stream: #f)))
-        emitComment(writer, line, numberLine);
+    while ((line := read-line(vm-file,on-end-of-stream: #f)))
+        emit-comment(writer, line, line-number);
         // check if line is not comment
         if (~(starts-with?(line, "//")))
             set-current-command(parser, line);
@@ -32,10 +32,10 @@ end function;
 
 define function handle-single-file
     (vm-file :: <file-stream>)
-    let file-name = first(split(last(split(as (<string>,file), "\\")),"."));
+    let file-name = first(split(last(split(as (<string>,vm-file), "\\")),"."));
     set-current-file-name(writer, file-name);
-    translateVmFile(vm-file);
-    close(writer);
+    translate-vm-file(vm-file);
+    close-file(writer);
 end function;
 
 
