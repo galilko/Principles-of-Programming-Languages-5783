@@ -15,14 +15,15 @@ define class <code-writer-07> (<object>)
   slot eq-counter :: <integer>, init-value: 0;
   slot gt-counter :: <integer>, init-value: 0;
   slot lt-counter :: <integer>, init-value: 0;
-  //slot file-name :: <string>, init-value: "inputA.vm";
   slot out :: <file-stream>;
+  slot file-name :: <string>;
 end class;
 
 
 
-  define function set-current-file-name(writer :: <code-writer-07>, file-name :: <string>);
-        writer.out := make(<file-stream>,locator: as(<file-locator>, concatenate(file-name, ".asm")), direction: #"output");
+  define function set-current-file-name(writer :: <code-writer-07>, file-path :: <string>)
+        writer.out := make(<file-stream>, locator: as(<file-locator>, concatenate(file-path, ".asm")), direction: #"output");
+        writer.file-name := last(split(file-path, "/"));
   end function;
 
   define function write-arithmetic(writer :: <code-writer-07>, command :: <string>)
@@ -48,7 +49,6 @@ end class;
 
   define function write-push-pop(writer :: <code-writer-07>, command :: <command-type>, segment :: <string>, index :: <integer>)
 
-  let file-name = "ddd";
         select (command)
            #"PUSH" => 
                 select (segment by \=)
@@ -60,7 +60,7 @@ end class;
                               0 => format(writer.out, replace-substrings(*push-pointer*, "{index}", "THIS"));
                               1 => format(writer.out, replace-substrings(*push-pointer*, "{index}", "THAT"));
                           end select;
-                    "static" => format(writer.out, replace-substrings(*push-static*, "{index}", concatenate(file-name, ".", integer-to-string(index))));
+                    "static" => format(writer.out, replace-substrings(*push-static*, "{index}", concatenate(writer.file-name, ".", integer-to-string(index))));
                 end select;
            #"POP" => 
                 select (segment by \=)
@@ -76,14 +76,14 @@ end class;
                               0 => format(writer.out, replace-substrings(*pop-pointer*, "{index}", "THIS"));
                               1 => format(writer.out, replace-substrings(*pop-pointer*, "{index}", "THAT"));
                           end select;
-                    "static" => format(writer.out, replace-substrings(*pop-static*, "{index}", concatenate(file-name, ".", integer-to-string(index))));
+                    "static" => format(writer.out, replace-substrings(*pop-static*, "{index}", concatenate(writer.file-name, ".", integer-to-string(index))));
                 end select;
         end select;
   end function;
 
 
  define function emit-comment(writer :: <code-writer-07>, command :: <string>, number-line :: <integer>)
-        format(writer.out, concatenate("// ", command, "  (line ", number-line, ")\n"));
+        format(writer.out, concatenate("// ", command, "  (line ", integer-to-string(number-line), ")\n"));
   end function;
 
     /**
