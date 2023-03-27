@@ -20,12 +20,13 @@ define class <code-writer-07> (<object>)
 end class;
 
 
-
+//Setter and add comment at assembly file
   define function set-current-file-name(writer :: <code-writer-07>, file-path :: <string>)
         writer.out := make(<file-stream>, locator: as(<file-locator>, concatenate(file-path, ".asm")), direction: #"output");
         writer.file-name := last(split(file-path, "/"));
   end function;
 
+//Writes to the output file the assembly code that implements the given arithmetic command.
   define function write-arithmetic(writer :: <code-writer-07>, command :: <string>)
         select (command by \=)
            "add" => format(writer.out, *add*);
@@ -46,7 +47,7 @@ end class;
         end select;
   end function;
 
-
+//Writes to the output file the assembly code that implements the given command,where command is either PUSH or POP.
   define function write-push-pop(writer :: <code-writer-07>, command :: <command-type>, segment :: <string>, index :: <integer>)
 
         select (command)
@@ -81,14 +82,13 @@ end class;
         end select;
   end function;
 
-
+//Emit comment in output file
  define function emit-comment(writer :: <code-writer-07>, command :: <string>, number-line :: <integer>)
         format(writer.out, concatenate("// ", command, "  (line ", integer-to-string(number-line), ")\n"));
   end function;
 
-    /**
-     * Closes the output file.
-     */
+    
+    //Closes the output file. 
     define function close-file(writer :: <code-writer-07>)
         close(writer.out);
     end function;
