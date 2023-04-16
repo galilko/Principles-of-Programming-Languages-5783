@@ -67,7 +67,7 @@ end class;
                 select (segment by \=)
                     "local", "argument", "this", "that" => 
                         let s = "";
-                        for (i from 0 to index)
+                        for (i from 1 to index)
                             s := concatenate(s, "A=A+1\n  ");
                         end for;
                         format(writer.out, replace-substrings(replace-substrings(*pop-lcl-arg-this-that*, "{index}", s), "{segment}", *segment-table*[segment]));

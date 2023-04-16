@@ -33,7 +33,7 @@ Copyright:
           "pop" => cmd-type := #"POP";
           "add","sub","neg","eq","gt","lt","and","or","not" => cmd-type := #"ARITHMETIC";
         end select;
-        valuesss(cmd-type);
+        values(cmd-type);
   end function;
   
   /**Return the first argument or current command.

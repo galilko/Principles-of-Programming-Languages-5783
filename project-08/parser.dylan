@@ -14,7 +14,7 @@ Copyright:
   end function;
 */
  define function set-current-command(parser :: <parser>, cmd :: <string>)
-      parser.current-command := first(split(as (<string>,cmd) ,"//" ));
+      parser.current-command := strip(first(split(as (<string>,cmd) ,"//" )));
   end function;
 
   define function get-current-command(parser :: <parser>)
@@ -41,12 +41,12 @@ Copyright:
   
   define function arg1(parser :: <parser>) => (current :: <string>)
     let current = second(split(as (<string>,parser.current-command) ,' '));
-    values(current);
+    values(strip(current));
   end function;
 
   define function arg2(parser :: <parser>) =>(current :: <integer>)
     
-    let current = string-to-integer(third(split(parser.current-command, ' ')));
+    let current = string-to-integer(strip(third(split(parser.current-command, ' '))));
     values(current);
   end function;
 

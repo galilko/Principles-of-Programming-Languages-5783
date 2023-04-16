@@ -17,14 +17,20 @@ define class <code-writer> (<object>)
   slot lt-counter :: <integer>, init-value: 0;
   slot call-counter :: <integer>, init-value: 0;
   slot out :: <file-stream>;
-  slot file-name :: <string>;
+  slot current-file-name :: <string>;
 end class;
 
 
 
-  define function set-current-file-name(writer :: <code-writer>, file-path :: <string>)
+  define function create-writer(writer :: <code-writer>, file-path :: <string>)
         writer.out := make(<file-stream>, locator: as(<file-locator>, concatenate(file-path, ".asm")), direction: #"output");
-        writer.file-name := last(split(file-path, "/"));
+        //writer.current-file-name := last(split(file-path, "/"));
+  end function;
+
+  define function set-current-file-name(writer :: <code-writer>, file-name :: <string>)
+        //writer.out := make(<file-stream>, locator: as(<file-locator>, concatenate(file-path, ".asm")), direction: #"output");
+        writer.current-file-name := first(split(file-name,"."));
+        format(writer.out, concatenate("// ",file-name,".vm\n\n"));
   end function;
 
   define function write-arithmetic(writer :: <code-writer>, command :: <string>)
@@ -61,13 +67,13 @@ end class;
                               0 => format(writer.out, replace-substrings(*push-pointer*, "{index}", "THIS"));
                               1 => format(writer.out, replace-substrings(*push-pointer*, "{index}", "THAT"));
                           end select;
-                    "static" => format(writer.out, replace-substrings(*push-static*, "{index}", concatenate(writer.file-name, ".", integer-to-string(index))));
+                    "static" => format(writer.out, replace-substrings(*push-static*, "{index}", concatenate(writer.current-file-name, ".", integer-to-string(index))));
                 end select;
            #"POP" => 
                 select (segment by \=)
                     "local", "argument", "this", "that" => 
                         let s = "";
-                        for (i from 0 to index)
+                        for (i from 1 to index)
                             s := concatenate(s, "A=A+1\n  ");
                         end for;
                         format(writer.out, replace-substrings(replace-substrings(*pop-lcl-arg-this-that*, "{index}", s), "{segment}", *segment-table*[segment]));
@@ -77,7 +83,7 @@ end class;
                               0 => format(writer.out, replace-substrings(*pop-pointer*, "{index}", "THIS"));
                               1 => format(writer.out, replace-substrings(*pop-pointer*, "{index}", "THAT"));
                           end select;
-                    "static" => format(writer.out, replace-substrings(*pop-static*, "{index}", concatenate(writer.file-name, ".", integer-to-string(index))));
+                    "static" => format(writer.out, replace-substrings(*pop-static*, "{index}", concatenate(writer.current-file-name, ".", integer-to-string(index))));
                 end select;
         end select;
   end function;
@@ -87,15 +93,15 @@ end class;
   end function;
 
   define function write-label(writer :: <code-writer>, label :: <string>)
-        format(writer.out, replace-substrings(*label*, "{label}", concatenate(writer.file-name, ".", label)));
+        format(writer.out, replace-substrings(*label*, "{label}", concatenate(writer.current-file-name, ".", label)));
   end function;
 
   define function write-goto(writer :: <code-writer>, label :: <string>)
-        format(writer.out, replace-substrings(*goto*, "{label}", concatenate(writer.file-name, ".", label)));
+        format(writer.out, replace-substrings(*goto*, "{label}", concatenate(writer.current-file-name, ".", label)));
   end function;
 
   define function write-if-goto(writer :: <code-writer>, label :: <string>)
-        format(writer.out, replace-substrings(*if-goto*, "{label}", concatenate(writer.file-name, ".", label)));
+        format(writer.out, replace-substrings(*if-goto*, "{label}", concatenate(writer.current-file-name, ".", label)));
   end function;
 
   define function write-call(writer :: <code-writer>, function-name :: <string>, num-of-args :: <integer>)

@@ -1,3 +1,115 @@
+
+// ++++++++++++++ BOOTSTRAPPING ++++++++++++++
+  // *** SP = 256 ***
+
+  @256
+  D=A
+  @SP
+  M=D
+  // *** call Sys.init ***
+
+  // push return-address
+  @Sys.init$RETURN0
+  D=A
+  @SP
+  A=M
+  M=D
+  @SP
+  M=M+1
+  // push LCL
+  @LCL
+  D=M
+  @SP
+  A=M
+  M=D
+  @SP
+  M=M+1
+
+  // push ARG
+  @ARG
+  D=M
+  @SP
+  A=M
+  M=D
+  @SP
+  M=M+1
+  // push THIS
+  @THIS
+  D=M
+  @SP
+  A=M
+  M=D
+  @SP
+  M=M+1
+  // push THAT
+  @THAT
+  D=M
+  @SP
+  A=M
+  M=D
+  @SP
+  M=M+1
+  // ARG = SP-n-5
+  @SP
+  D=M
+  @0
+  D=D-A
+  @5
+  D=D-A
+  @ARG
+  M=D
+  // LCL = SP
+  @SP
+  D=M
+  @LCL
+  M=D
+  @Sys.init
+  0;JMP
+(Sys.init$RETURN0)
+// ++++++++++++++ END BOOTSTRAPPING ++++++++++++++
+
+// SimpleAdd.vm
+
+// // This file is part of www.nand2tetris.org  (line 1)
+// // and the book "The Elements of Computing Systems"  (line 2)
+// // by Nisan and Schocken, MIT Press.  (line 3)
+// // File name: projects/07/StackArithmetic/SimpleAdd/SimpleAdd.vm  (line 4)
+//   (line 5)
+// // Pushes and adds two constants.  (line 6)
+// push constant 7  (line 7)
+
+  @7
+  D=A               //   D = 7
+  @SP               //   A = 0
+  A=M               //   A = ram[0]
+  M=D               //   ram[A] = D
+  @SP               //   A = 0
+  M=M+1             //   ram[0] = ram[0]+1
+
+// push constant 8  (line 8)
+
+  @8
+  D=A               //   D = 8
+  @SP               //   A = 0
+  A=M               //   A = ram[0]
+  M=D               //   ram[A] = D
+  @SP               //   A = 0
+  M=M+1             //   ram[0] = ram[0]+1
+
+// add  (line 9)
+
+@SP               //   A = 0
+AM=M-1            //   A = ram[0]-1, ram[0] = ram[0]-1
+D=M               //   D = ram[A]
+@SP               //   A = 0
+AM=M-1            //   A = ram[0]-1, ram[0] = ram[0]-1
+D=M+D             //   D = ram[A]+D
+M=D               //   ram[A] = D
+@SP               //   A = 0
+M=M+1             //   ram[0] = ram[0]+1
+
+// StackTest.vm
+
 // // This file is part of www.nand2tetris.org  (line 1)
 // // and the book "The Elements of Computing Systems"  (line 2)
 // // by Nisan and Schocken, MIT Press.  (line 3)
