@@ -1,6 +1,6 @@
 Module: project-08
 Synopsis: 
-Author: 
+Author: Gal Gabay & Nerya Barkasa
 Copyright: 
 
  define class <parser> (<object>)
