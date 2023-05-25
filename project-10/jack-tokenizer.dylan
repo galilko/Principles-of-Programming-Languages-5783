@@ -67,7 +67,7 @@ Copyright:
             format-out("No more tokens");
         end;
 
-        if (regex-search(compile-regex($keywordReg), tokenizer.currentToken))
+        if (regex-search(compile-regex($keywordReg), tokenizer.currentToken) & ~starts-with? (tokenizer.currentToken,"print"))
             format-out(tokenizer.currentToken);
             force-out();
             tokenizer.currentTokenType := #"KEYWORD";
@@ -144,7 +144,7 @@ Copyright:
      */
     define function getStringVal(tokenizer :: <jack-tokenizer>)
         if(tokenizer.currentTokenType == #"STRING_CONST")
-            values(tokenizer.currentToken);
+            values(split(tokenizer.currentToken,'"')[1]);
         else
             format-out("Current token is not a string constant!");
         end;
