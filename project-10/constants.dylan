@@ -16,7 +16,7 @@ define constant <keyword>
 
 
 define constant $keywordReg =  "class|constructor|function|method|field|static|var|int|char|boolean|void|true|false|null|this|let|do|if|else|while|return" ;                 
-define constant $symbolReg = "[\\&\\*\\+\\(\\)\\.\\/\\,\\-\\]\\;\\~\\}\\|\\{\\>\\=\\[\\<]";
+define constant $symbolReg = "[-\\&\\*\\+\\(\\)\\.\\/\\,\\-\\]\\;\\~\\}\\|\\{\\>\\=\\[\\<]";
 define constant $intReg = "[0-9]+";
 define constant $strReg = "\"[^\"\n]*\"";
 define constant $idReg = "[a-zA-Z_]\\w*";

@@ -118,10 +118,10 @@ end function;
 define function compileClassVarDec
 (engine :: <compilation-engine>)
     //first determine whether there is a classVarDec, nextToken is } or start subroutineDec
-    advance(engine.tokenizer);
-    let type :: <token-type> = engine.tokenizer.currentTokenType;
-    //next is a "}" or next is subroutineDec
     block(return)
+        advance(engine.tokenizer);
+        let type :: <token-type> = engine.tokenizer.currentTokenType;
+        //next is a "}" or next is subroutineDec
         let key = getKeyword(engine.tokenizer);
         if (type == #"SYMBOL" & string-equal? (getSymbol(engine.tokenizer), "}"))
             pointerBack(engine.tokenizer);
@@ -138,14 +138,7 @@ define function compileClassVarDec
             return();
         end;
 
-
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        engine.indentation := engine.indentation + 1;
-        format(engine.printWriter, "<classVarDec>\n");
-
-
+        openTag(engine, "<classVarDec>\n");
 
         //classVarDec exists
         let key = getKeyword(engine.tokenizer);
@@ -158,11 +151,12 @@ define function compileClassVarDec
         compileType(engine);
         //at least one varName
         //boolean varNamesDone = false
-
-        while (#t)
+        let flag = #t;
+        while (flag)
             //varName
             advance(engine.tokenizer);
             let type :: <token-type> = engine.tokenizer.currentTokenType;
+
             if (type ~= #"IDENTIFIER")
                 throwError(engine, "identifier");
                 return();
@@ -179,15 +173,11 @@ define function compileClassVarDec
             end if;
             writeXMLTag2(engine, type, getSymbol(engine.tokenizer));
             if (string-equal? (getSymbol(engine.tokenizer), ";"))
-                return();
+                flag := #f;
             end if;
         end while;
 
-        engine.indentation := engine.indentation - 1;
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        format(engine.printWriter, "</classVarDec>\n");
+        closeTag(engine, "</classVarDec>\n");
         compileClassVarDec(engine);
     end block;
 end function;
@@ -212,15 +202,11 @@ define function compileSubroutine
 
         //start of a subroutine
         let key = getKeyword(engine.tokenizer);
-        if (type ~= #"KEYWORD" | (key ~= "CONSTRUCTOR" & key ~= #"FUNCTION" & key ~= #"METHOD"))
+        if (type ~= #"KEYWORD" | (key ~= #"CONSTRUCTOR" & key ~= #"FUNCTION" & key ~= #"METHOD"))
             throwError(engine, "constructor|function|method");
             return();
         end if;
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        engine.indentation := engine.indentation + 1;
-        format(engine.printWriter, "<subroutineDec>\n");
+        openTag(engine, "<subroutineDec>\n");
         writeXMLTag(engine, type);
         advance(engine.tokenizer);
         type := engine.tokenizer.currentTokenType;
@@ -243,28 +229,16 @@ define function compileSubroutine
         //'('
         requireSymbol(engine, "(");
         //parameterList
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        engine.indentation := engine.indentation + 1;
-        format(engine.printWriter, "<parameterList>\n");
+        openTag(engine, "<parameterList>\n");
         compileParameterList(engine);
 
-        engine.indentation := engine.indentation - 1;
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        format(engine.printWriter, "</parameterList>\n");
+        closeTag(engine, "</parameterList>\n");
         //')'
         requireSymbol(engine, ")");
         //subroutineBody
         compileSubroutineBody(engine);
         
-        engine.indentation := engine.indentation - 1;
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        format(engine.printWriter, "</subroutineDec>\n");
+        closeTag(engine, "</subroutineDec>\n");
         compileSubroutine(engine);
     end;
 end function;
@@ -274,11 +248,7 @@ end function;
      * "{"  varDec* statements "}"
      */
     define function compileSubroutineBody(engine :: <compilation-engine>)
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        engine.indentation := engine.indentation + 1;
-        format(engine.printWriter, "<subroutineBody>\n");
+        openTag(engine, "<subroutineBody>\n");
 
         //"{"
         requireSymbol(engine, "{");
@@ -286,25 +256,13 @@ end function;
         compileVarDec(engine);
 
         //statements
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        engine.indentation := engine.indentation + 1;
-        format(engine.printWriter, "<statements>\n");
+        openTag(engine, "<statements>\n");
         compileStatement(engine);
         
-        engine.indentation := engine.indentation - 1;
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        format(engine.printWriter, "</statements>\n"); 
+        closeTag(engine, "</statements>\n"); 
         //"}"
         requireSymbol(engine, "}");
-        engine.indentation := engine.indentation - 1;
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        format(engine.printWriter, "</subroutineBody>\n"); 
+        closeTag(engine, "</subroutineBody>\n"); 
     end function;
 
 /**
@@ -405,11 +363,7 @@ define function compileVarDec
             pointerBack(engine.tokenizer);
             return();
         end if;
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        engine.indentation := engine.indentation + 1;
-        format(engine.printWriter, "<varDec>\n");
+        openTag(engine, "<varDec>\n");
         writeXMLTag2(engine, type, "var");
         //type
         compileType(engine);
@@ -439,11 +393,7 @@ define function compileVarDec
             end if;
         end while;
         
-        engine.indentation := engine.indentation - 1;
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        format(engine.printWriter, "</varDec>\n");
+        closeTag(engine, "</varDec>\n");
         compileVarDec(engine);
     end;
 end function;
@@ -453,11 +403,7 @@ end function;
      * 'do' subroutineCall ';'
      */
     define function compileDo(engine :: <compilation-engine>)
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        engine.indentation := engine.indentation + 1;
-        format(engine.printWriter, "<doStatement>\n");
+        openTag(engine, "<doStatement>\n");
 
 
         writeXMLTag2(engine, #"KEYWORD", "do");
@@ -466,11 +412,7 @@ end function;
         //';'
         requireSymbol(engine, ";");
 
-        engine.indentation := engine.indentation - 1;
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        format(engine.printWriter, "</doStatement>\n"); 
+        closeTag(engine, "</doStatement>\n"); 
     end function;
 
 /**
@@ -481,11 +423,7 @@ define function compileLet
 (engine :: <compilation-engine>)
     block (return)
       
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        engine.indentation := engine.indentation + 1;
-        format(engine.printWriter, "<letStatement>\n");
+        openTag(engine, "<letStatement>\n");
         writeXMLTag2(engine, #"KEYWORD", "let");
         //varName
         advance(engine.tokenizer);
@@ -524,11 +462,7 @@ define function compileLet
         compileExpression(engine);
         //';'
         requireSymbol(engine, ";");
-                engine.indentation := engine.indentation - 1;
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        format(engine.printWriter, "</letStatement>\n");
+                closeTag(engine, "</letStatement>\n");
     end;
 end function;
 
@@ -537,11 +471,7 @@ end function;
      * 'while' '(' expression ')' "{" statements "}"
      */
     define function compilesWhile(engine :: <compilation-engine>)
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        engine.indentation := engine.indentation + 1;
-        format(engine.printWriter, "<whileStatement>\n");
+        openTag(engine, "<whileStatement>\n");
         writeXMLTag2(engine, #"KEYWORD", "while");
         //'('
         requireSymbol(engine, "(");
@@ -552,25 +482,13 @@ end function;
         //"{"
         requireSymbol(engine, "{");
         //statements
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        engine.indentation := engine.indentation + 1;
-        format(engine.printWriter, "<statements>\n");
+        openTag(engine, "<statements>\n");
         compileStatement(engine);
-        engine.indentation := engine.indentation - 1;
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        format(engine.printWriter, "</statements>\n"); 
+        closeTag(engine, "</statements>\n"); 
         //"}"
         requireSymbol(engine, "}");
         
-        engine.indentation := engine.indentation - 1;
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        format(engine.printWriter, "</whileStatement>\n");
+        closeTag(engine, "</whileStatement>\n");
     end function;
 
 /**
@@ -581,11 +499,7 @@ define function compilereturn
 (engine :: <compilation-engine>)
     block (return)
       
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        engine.indentation := engine.indentation + 1;
-        format(engine.printWriter, "<returnStatement>\n");
+        openTag(engine, "<returnStatement>\n");
         writeXMLTag2(engine, #"KEYWORD", "return");
         //check if there is any expression
         advance(engine.tokenizer);
@@ -607,11 +521,7 @@ define function compilereturn
         //';'
         requireSymbol(engine, ";");
         
-        engine.indentation := engine.indentation - 1;
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        format(engine.printWriter, "</returnStatement>\n"); 
+        closeTag(engine, "</returnStatement>\n"); 
     end;
 end function;
 
@@ -621,11 +531,7 @@ end function;
      * 'if' '(' expression ')' "{" statements "}" ('else' "{" statements "}")?
      */
     define function compileIf(engine :: <compilation-engine>)
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        engine.indentation := engine.indentation + 1;
-        format(engine.printWriter, "<ifStatements>\n");
+        openTag(engine, "<ifStatement>\n");
         writeXMLTag2(engine, #"KEYWORD", "if");
         //'('
         requireSymbol(engine, "(");
@@ -636,18 +542,10 @@ end function;
         //"{"
         requireSymbol(engine, "{");
         //statements
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        engine.indentation := engine.indentation + 1;
-        format(engine.printWriter, "<statements>\n");
+        openTag(engine, "<statements>\n");
         compileStatement(engine);
         
-        engine.indentation := engine.indentation - 1;
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        format(engine.printWriter, "</statements>\n"); 
+        closeTag(engine, "</statements>\n"); 
         //"}"
         requireSymbol(engine, "}");
         //check if there is 'else'
@@ -676,11 +574,7 @@ end function;
             pointerBack(engine.tokenizer);
         end;
         
-        engine.indentation := engine.indentation - 1;
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        format(engine.printWriter, "</ifStatement>\n"); 
+        closeTag(engine, "</ifStatement>\n"); 
     end function;
 
 /**
@@ -697,11 +591,7 @@ end function;
 define function compileTerm
 (engine :: <compilation-engine>)
     block (return)
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        engine.indentation := engine.indentation + 1;
-        format(engine.printWriter, "<term>\n");
+        openTag(engine, "<term>\n");
         advance(engine.tokenizer);
         //check if it is an identifier
         let type1 = engine.tokenizer.currentTokenType;
@@ -756,11 +646,7 @@ define function compileTerm
             end;
             
         end;
-        engine.indentation := engine.indentation - 1;
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        format(engine.printWriter, "</term>\n"); 
+        closeTag(engine, "</term>\n"); 
     end;
 end function;
 
@@ -796,8 +682,6 @@ define function compileSubroutineCall
             type := engine.tokenizer.currentTokenType;
 
             if (type ~= #"IDENTIFIER")
-                    format-out("jjjjjj\n");
-        force-out();
                 throwError(engine, "identifier");
                 return();
             end if;
@@ -821,11 +705,7 @@ end function;
      * term (op term)*
      */
     define function compileExpression(engine :: <compilation-engine>)
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        engine.indentation := engine.indentation + 1;
-        format(engine.printWriter, "<expression>\n");
+        openTag(engine, "<expression>\n");
         //term
         compileTerm(engine);
         //(op term)*
@@ -834,7 +714,10 @@ end function;
             advance(engine.tokenizer);
             //op
             let type :: <token-type> = engine.tokenizer.currentTokenType;
-
+            //format-out("fffffffffffff\n");
+            //format-out(engine.tokenizer.currentToken);
+            //format-out(as(<string>, type));
+            //force-out();
             if (type == #"SYMBOL" & isOp(engine.tokenizer))
                 select (getSymbol(engine.tokenizer) by \=)
                     ">" => writeXMLTag2(engine, type, "&gt;");
@@ -851,11 +734,7 @@ end function;
             end;
         end while;
         
-        engine.indentation := engine.indentation - 1;
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        format(engine.printWriter, "</expression>\n"); 
+        closeTag(engine, "</expression>\n"); 
     end function;
 
 
@@ -865,11 +744,7 @@ end function;
      * (expression(','expression)*)?
      */
     define function compileExpressionList(engine :: <compilation-engine>)
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        engine.indentation := engine.indentation + 1;
-        format(engine.printWriter, "<expressionList>\n");
+        openTag(engine, "<expressionList>\n");
         
         advance(engine.tokenizer);
         let type :: <token-type> = engine.tokenizer.currentTokenType;
@@ -894,11 +769,7 @@ end function;
             end while;
         end if;
         
-        engine.indentation := engine.indentation - 1;
-        for (i from 1 to engine.indentation)
-            format(engine.printWriter, engine.width);
-        end for;
-        format(engine.printWriter, "</expressionList>\n"); 
+        closeTag(engine, "</expressionList>\n"); 
     end function;
 
     //---------------------------------Auxiliary functions---------------------------------//
@@ -959,4 +830,21 @@ end function;
     define function throwError(engine :: <compilation-engine>, val :: <string>)
         format-out(concatenate("Expected token missing: ",val,". Current token: ", engine.tokenizer.currentToken));
         force-out();
+    end function;
+
+    define function openTag(engine :: <compilation-engine>, tag :: <string>)
+        for (i from 1 to engine.indentation)
+            format(engine.printWriter, engine.width);
+        end for;
+        engine.indentation := engine.indentation + 1;
+        format(engine.printWriter, tag);
+    end function;
+
+
+    define function closeTag(engine :: <compilation-engine>, tag :: <string>)
+        engine.indentation := engine.indentation - 1;
+        for (i from 1 to engine.indentation)
+            format(engine.printWriter, engine.width);
+        end for;
+        format(engine.printWriter, tag);
     end function;

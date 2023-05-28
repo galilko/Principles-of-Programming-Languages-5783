@@ -20,15 +20,20 @@ Copyright:
 
             
     define function generate-tokens(jack-tokenizer :: <jack-tokenizer>, jack-file :: <file-stream>)
+        jack-tokenizer.pointer := 0;
+        jack-tokenizer.tokens := make(<stretchy-vector>);
         let content = "";
         let line = #f;
         while ((line := read-line(jack-file, on-end-of-stream: #f)))
-           content := concatenate(content, line, "\n");
+            if (~(starts-with? (strip(line), "/*") | starts-with? (strip(line), "*")))
+                content := concatenate(content, line, "\n");
+            end if;
         end;
         let preProcessed = as(<string>, content);
         preProcessed := noComments(preProcessed);
-        preProcessed := noBlockComments(preProcessed);
+        // preProcessed := noBlockComments(preProcessed);
         preProcessed := strip(preProcessed);
+        //format-out(preProcessed);
 
         let match :: false-or(<regex-match>) = regex-search($tokenPatterns, preProcessed);
         let i = 0;
@@ -59,7 +64,9 @@ Copyright:
 
 
     define function advance(tokenizer :: <jack-tokenizer>)
-                
+            //format-out(tokenizer.currentToken);
+            //format-out(as(<string>, type));
+            //force-out();
         if (hasMoreTokens(tokenizer))
             tokenizer.currentToken := tokenizer.tokens[tokenizer.pointer];
             tokenizer.pointer := tokenizer.pointer + 1;
@@ -68,8 +75,6 @@ Copyright:
         end;
 
         if (regex-search(compile-regex($keywordReg), tokenizer.currentToken) & ~starts-with? (tokenizer.currentToken,"print"))
-            format-out(tokenizer.currentToken);
-            force-out();
             tokenizer.currentTokenType := #"KEYWORD";
         elseif (regex-search(compile-regex($symbolReg), tokenizer.currentToken))
             tokenizer.currentTokenType := #"SYMBOL";
@@ -94,7 +99,8 @@ Copyright:
         if(tokenizer.currentTokenType == #"KEYWORD")
             values(*keywordMap*[tokenizer.currentToken]);
         else
-            format-out("Current token is not a keyword!");
+            //format-out("Current token is not a keyword!");
+            format-out("");
         end;
     end function;
 
@@ -103,7 +109,8 @@ Copyright:
         if(tokenizer.currentTokenType == #"SYMBOL")
             values(tokenizer.currentToken);
         else
-            format-out("Current token is not a symbol!");
+            //format-out("Current token is not a symbol!");
+            format-out("");
         end;
     end function;
     
@@ -170,6 +177,8 @@ Copyright:
      */
     define function isOp(tokenizer :: <jack-tokenizer>)
        let ops :: <simple-vector> = #["+","-","*","/","|","<",">","=","&"];
+        //format-out(getSymbol(tokenizer));
+        //force-out();
         if (position(ops, getSymbol(tokenizer), test: \=))
             #t;
         else

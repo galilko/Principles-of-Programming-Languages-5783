@@ -4,9 +4,10 @@ Author: Gal Gabay & Nerya Barkasa
 Copyright: 
 
 
+let compilationEngine = make(<compilation-engine>);
+
 define function translate-jack-file
 (jack-file :: <file-stream>, fileOut :: <file-stream>,  tokensFileOut :: <file-stream>)
-    let compilationEngine = make(<compilation-engine>);
     create-compilation-engine(compilationEngine, jack-file, fileOut,  tokensFileOut);
     compileClass(compilationEngine);
 end function;
@@ -19,7 +20,8 @@ define function handle-directory
         let jack-path = as(<string>, file);
         if (ends-with?(jack-path,".jack"))
             let jack-file = make(<file-stream>, locator: as(<file-locator>, jack-path), direction: #"input");
-            //handle-single-file(tokensFileOut,fileOut, jack-file);
+            handle-single-file(jack-file, jack-path);
+            close(jack-file);
         end if;
     end for;
 end function;
@@ -64,17 +66,18 @@ end function;
 define function main
     (name :: <string>, arguments :: <vector>)
     //C:/Users/Gal Gabay/AppData/Local/VirtualStore/Program Files (x86)/Open Dylan/bin/POPL/project-10/Main.jack
-    /*if(arguments.size = 0)
+    if(arguments.size = 0)
         format-out("Missing argument!!!");
     end if;
     
-    let path = arguments[0];*/
-    let path = "C:\\Users\\Gal Gabay\\AppData\\Local\\VirtualStore\\Program Files (x86)\\Open Dylan\\bin\\POPL\\project-10\\Main.jack";
+    let path = arguments[0];
+    //let path = "C:\\Users\\Gal Gabay\\AppData\\Local\\VirtualStore\\Program Files (x86)\\Open Dylan\\bin\\POPL\\project-10\\Square.jack";
     //format-out(path);
     select (file-type(path))
         #"file" => 
             let jack-file = make(<file-stream>, locator: as(<file-locator>, path), direction: #"input");
             handle-single-file(jack-file, path);
+            close(jack-file);
         #"directory" =>
             handle-directory(path);
     end select;
