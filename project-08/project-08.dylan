@@ -79,6 +79,7 @@ define function handle-single-file
 end function;
 
 
+
 define function main
     (name :: <string>, arguments :: <vector>)
     if(arguments.size = 0)
