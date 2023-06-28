@@ -423,6 +423,8 @@ define function compileVarDec
             //varName
             advance(engine.tokenizer);
             if (engine.tokenizer.currentTokenType ~= #"IDENTIFIER")
+                format-out("current token type is %=", engine.tokenizer.currentTokenType);
+
                 throwError(engine, "identifier");
                 return();
             end if;

@@ -1,0 +1,210 @@
+
+
+class Board{
+    //0 - blank
+    //1 - X
+    //2 - O
+    field int boardGame;
+    field int moves;
+
+    // 1 - X
+    // 0 - O
+    field boolean turn;
+
+    static int BOARD_H,BOARD_W;
+
+    
+
+
+    constructor Board new(boolean firstPlayer){
+        var int i;
+        let BOARD_H = 255;
+        let BOARD_W = 511;
+        let boardGame = Array.new(9);
+        let turn = firstPlayer;
+        let moves = 0;
+        
+        let i = 0;
+        while(i<9){
+            let boardGame[i] = 0;
+            let i= i+1;
+        }
+        return this;
+    }
+
+     /** Disposes this square. */
+   method void dispose() {
+     // do boardGame.dispose();
+      do Memory.deAlloc(this);
+      return;
+   }
+
+   method void printTest(){
+        var int i;
+        while(i<9){
+            do Output.printInt(boardGame[i]);
+            let i= i+1;
+        }
+        return;
+   }
+   method void run(){
+       var int userSelection, userX, userY,userValue,winner;
+       do drawBoard();
+       
+       while(check()=0){
+          do Output.moveCursor(1,1);
+           let userSelection = Keyboard.readInt("enter move: ");
+           while((userSelection>9) | (userSelection<1) | (~(boardGame[userSelection-1] = 0))){
+               do Output.moveCursor(1,1);
+               let userSelection = Keyboard.readInt("enter egain ");  
+           }
+           do Output.moveCursor(2,1);
+           // do Output.printInt(userSelection);
+
+           let userX = (userSelection-1) - (((userSelection-1)/3)*3);// %3
+           let userY = (userSelection-1)/3 ;
+           if(turn){
+               let userValue = 1;
+           }
+           else{
+               let userValue = 2;
+           }
+           //do Output.printInt(userX);
+           //do Output.printInt(userY);
+           do set(userX,userY,userValue);
+           do drawAction(userX,userY);
+
+           let turn = ~turn;
+          //  do Output.printInt(userSelection);
+           //do printTest();
+           let moves = moves+1;
+        //   do Output.printInt(check());
+       }
+       
+      // do Output.printInt(check());
+       //do Output.printString("gameOver");
+       let winner = check();
+       if(winner=1){
+           do Output.printString("the X win");
+       }
+       else {
+            if(winner=2){
+                 do Output.printString("the O win");
+            }
+            else{
+                do Output.printString("tie");
+            }
+       }
+       
+       return;
+   }
+
+   method int get(int i,int j){
+       return boardGame[3*j+i];
+   }
+
+    method void set(int i,int j,int value){
+       let boardGame[3*j+i] = value;
+       return;
+   }
+
+    method void drawBoard(){
+        do Screen.setColor(true);
+        do Screen.drawRectangle(0,0,511,255);
+        do Screen.setColor(false);
+        do Screen.drawRectangle(3,3,508,252);
+        do Screen.setColor(true);
+
+        do Screen.drawRectangle(BOARD_W/4 ,0 ,(BOARD_W/4)+2,BOARD_H);
+        do Screen.drawRectangle((BOARD_W/4) *2 ,0 ,(BOARD_W/4)*2+2,BOARD_H);
+        do Screen.drawRectangle((BOARD_W/4) *3 ,0 ,(BOARD_W/4)*3+2,BOARD_H);
+
+        do Screen.drawRectangle((BOARD_W/4) ,BOARD_H/3 ,BOARD_W,(BOARD_H/3) +2);
+        do Screen.drawRectangle((BOARD_W/4) ,(BOARD_H/3)*2 ,BOARD_W,((BOARD_H/3)*2) +2);
+
+        // do Screen.drawLine(5,5,BOARD_W/4-5,BOARD_H/3-5);
+        // do Screen.drawLine(5,BOARD_H/3-5,BOARD_W/4-5,5);
+        return;
+    }
+
+   method void drawAction(int i,int j){
+       var int x1,x2,y1,y2,padding;
+       let padding = 20;
+       do Screen.setColor(true);
+       if(turn){
+           let x1 = (BOARD_W/4) *(i+1) + padding;
+           let x2 = (BOARD_W/4) *(i+2) - padding;
+           let y1 = (BOARD_H/3) *(j) + padding;
+           let y2 = (BOARD_H/3) *(j+1) - padding;
+
+           do Screen.drawLine(x1,y1,x2,y2);
+           do Screen.drawLine(x1,y2,x2,y1);
+       }
+       else {
+           let x1 = ((BOARD_W/4)*(i+2))-(BOARD_W/8) ;
+           let y1 = ((BOARD_H/3) *(j+1))- (BOARD_H/6);
+           do Screen.drawCircle(x1,y1,BOARD_H/8);
+           do Screen.setColor(false);
+           do Screen.drawCircle(x1,y1,(BOARD_H/8)-1);
+           do Screen.setColor(true);
+       }
+       return;
+
+   }
+//2 O win
+//1 X win
+//0 nothing 
+//3 tie
+   method int check(){
+        var int i,j,currentValue;
+        var boolean flag;
+       
+       
+        let i = 0;
+        let flag=false;
+        while((i<3) & (~flag)){
+            let currentValue = get(i,0);
+            let j = 1;
+            let flag = true;
+            while(j<3){
+                if((~(get(i,j)=currentValue))|(currentValue=0)){
+                    let flag = false ;
+                }
+                let j=j+1;  
+            }
+            let i=i+1;
+        }
+        if(flag){
+            return currentValue;
+        }
+
+        let i = 0;
+        while((i<3) & (~flag)){
+            let currentValue = get(0,i);
+            let j = 1;
+            let flag = true;
+            while(j<3){
+                if((~(get(j,i)=currentValue))|(currentValue=0)){
+                    let flag = false;
+                }
+                let j=j+1;  
+            }
+            let i=i+1;
+        }
+        if(flag){
+            return currentValue;
+        }
+        let currentValue = get(1,1); 
+        if((~(currentValue =0)) &( ((get(0,0)=currentValue) &(get(2,2)=currentValue)) | ((get(0,2)=currentValue) &(get(2,0)=currentValue)))){
+            return currentValue;
+        }
+
+        if(moves=9){
+           return 3;
+       }
+
+
+        return 0;
+   }
+
+}

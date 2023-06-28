@@ -83,10 +83,10 @@ Copyright:
             tokenizer.currentTokenType := #"STRING_CONST";
         elseif (regex-search(compile-regex($symbolReg), tokenizer.currentToken))
             tokenizer.currentTokenType := #"SYMBOL";
-        elseif (regex-search(compile-regex($intReg), tokenizer.currentToken))
-            tokenizer.currentTokenType := #"INT_CONST";
         elseif (regex-search(compile-regex($idReg), tokenizer.currentToken))
             tokenizer.currentTokenType := #"IDENTIFIER";
+        elseif (regex-search(compile-regex($intReg), tokenizer.currentToken))
+            tokenizer.currentTokenType := #"INT_CONST";
         else
             format-out(concatenate("Unknown token:", tokenizer.currentToken));
         end;
@@ -207,6 +207,7 @@ Copyright:
     define function noComments(strIn :: <string>)
         regex-replace(strIn, compile-regex("//.*"), "");
     end function;
+
 
 
 

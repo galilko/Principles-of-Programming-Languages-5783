@@ -11,7 +11,7 @@ define constant <token-type>
 
 define constant $keywordReg =  "class|constructor|function|method|field|static|var|int|char|boolean|void|true|false|null|this|let|do |if|else|while|return" ;                 
 define constant $symbolReg = "[-\\&\\*\\+\\(\\)\\.\\/\\,\\-\\]\\;\\~\\}\\|\\{\\>\\=\\[\\<]";
-define constant $intReg = "[0-9]+";
+define constant $intReg = "\\d+";
 define constant $strReg = "\"[^\"\n]*\"";
 define constant $idReg = "[a-zA-Z_]\\w*";
 define constant $patterns =  concatenate($symbolReg, "|" ,$intReg ,"|" ,$strReg ,"|",$idReg);
